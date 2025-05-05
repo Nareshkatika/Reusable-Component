@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Filters from "./Filters";
+import TableData from "./Table";
+import Pagination from "./Pagination";
 
 const FirstPage = () => {
   const [store, setStore] = useState([]);
@@ -18,9 +20,10 @@ const FirstPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://dummyjson.com/users?limit=300");
-        setItems(response.data.users);
-        setStore(response.data.users);
+        const response = await axios.get('https://dummyjson.com/users?limit=300');
+        const data=response.data.users
+        setItems(data);
+        setStore(data);
         setLoading(false);
       } catch (error) {
         if (!navigator.onLine) {
@@ -61,6 +64,19 @@ const FirstPage = () => {
     }
   };
 
+  //totalTableData
+
+  const tableData=[
+    {label:'ID',key:'id'},
+    {label:'FirstName',key:'firstName'},
+    {label:'LastName',key:'lastName'},
+    {label:'Age',key:'age'},
+    {label:'D.O.B',key:'birthDate'},
+    {label:'Gender',key:'gender'},
+    {label:'BloodGroup',key:'bloodGroup'},
+    {label:'Country',key:'address.country'},
+  ]
+
   return (
     <div className="p-4">
       <Filters query={query} setQuery={setQuery}
@@ -73,69 +89,17 @@ const FirstPage = () => {
         <p>Loading...please wait</p>
       ) : (
         <>
-          <table className="min-w-full bg-white border border-gray-300 text-sm">
-            <thead className="bg-gray-100 text-gray-700">
-              <tr>
-                <th>S.No</th>
-                <th>Id</th>
-                <th>FirstName</th>
-                <th>LastName</th>
-                <th>Age</th>
-                <th>D.O.B</th>
-                <th>Gender</th>
-                <th>Blood Group</th>
-                <th>Country</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.map((eachItem,index) => (
-                <tr key={eachItem.id} className="text-center border-t">
-                  <td>{index+1}</td>
-                  <td>{eachItem.id}</td>
-                  <td>{eachItem.firstName}</td>
-                  <td>{eachItem.lastName}</td>
-                  <td>{eachItem.age}</td>
-                  <td>{eachItem.birthDate}</td>
-                  <td>{eachItem.gender}</td>
-                  <td>{eachItem.bloodGroup}</td>
-                  <td>{eachItem.address.country}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <TableData data={currentItems}
+           tableData={tableData} />
 
           {store.length === 0 && <p className="mt-4 text-red-500">No Items Found</p>}
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center mt-6 space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageChange(index + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === index + 1
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 hover:bg-gray-200"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+         
+          <Pagination
+            handlePageChange={handlePageChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
         </>
       )}
     </div>
